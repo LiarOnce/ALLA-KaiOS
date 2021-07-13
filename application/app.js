@@ -9,6 +9,9 @@ window.addEventListener("load", function () {
                 // loadData_Apps();
                 onClick_Copy();
                 break;
+            case "1":
+                onClick_Copy_toInternal();
+                break;
             case "Q":
                 loadData_Apps_Test();
                 break;
@@ -20,7 +23,6 @@ window.addEventListener("load", function () {
                 onClick_Enter();
                 break;
             case "*":
-                // onClick_Test();
                 break;
         }
     });
@@ -137,7 +139,9 @@ const loadData_Apps = () => {
 };
 
 const loadData_Apps_Test = () => {
-    Array.from({ length: 63 }).forEach((o, index) => {
+    Array.from({
+        length: 63
+    }).forEach((o, index) => {
         let item = {
             icon: "",
             name: "name" + index,
@@ -166,6 +170,28 @@ const onClick_Test = () => {
     console.log(navigator);
 };
 
+const onClick_Copy_toInternal = () => {
+    if (mLoading || !mItem) {
+        return;
+    }
+    let app = mItem.origin.substr(6);
+    let internal = "/data/usbmsc_mnt/ALLA/apps/"
+    let cmd1_int = `mkdir -p ${internal}`;
+    let cmd2_int = `cp -r /system/b2g/webapps/${app} ${internal}`;
+    let cmd3_int = `cp -r /data/local/webapps/${app} ${internal}`;
+    let cmd = [cmd1_int, cmd2_int, cmd3_int];
+    let error = () => {
+        alert(translate('operation_failed'));
+        mLoading = false;
+    };
+    let request = navigator.engmodeExtension.startUniversalCommand(cmd.join(";"), true);
+    request.onsuccess = (result) => {
+        alert(translate('backup_to') + internal + app);
+        mLoading = false;
+    };
+    request.onerror = error;
+}
+
 const onClick_Copy = () => {
     if (mLoading || !mItem) {
         return;
@@ -180,7 +206,6 @@ const onClick_Copy = () => {
         mLoading = true;
         let app = mItem.origin.substr(6);
         let sdcard = "/sdcard/ALLA/apps/";
-        // let sdcard = "/storage/emulated/ALLA/apps/";
         let cmd1 = `mkdir -p ${sdcard}`;
         let cmd2 = `cp -r /system/b2g/webapps/${app} ${sdcard}`;
         let cmd3 = `cp -r /data/local/webapps/${app} ${sdcard}`;
